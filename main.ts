@@ -18,13 +18,16 @@ function renderMovies(movies) {
     })
 }
 
-// load('movies.json')
-loadWithFetch('moviess.json')
+// loadWithFetch('movies.json')
+let subscription = load('movies.json')
         .subscribe(
                 renderMovies,
                 logger.logError,
                 logger.logComplete
         );
+
+console.log(subscription);
+subscription.unsubscribe();
 
 click
 // .flatMap(e => load('movies.json'))
