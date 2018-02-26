@@ -9,24 +9,48 @@ let button = document.getElementById('button');
 
 let click = Observable.fromEvent(button, 'click');
 
-function load(url: string) {
-    let xhr = new XMLHttpRequest();
+function load(url: string): Observable<any> {
+    // return Observable.fromEvent(xhr, 'load')
+    //         .map();
+    return Observable.create(observer => {
 
-    xhr.addEventListener('load', () => {
-        let movies = JSON.parse(xhr.responseText);
-        movies.forEach(m => {
-            let div = document.createElement('div');
-            div.innerText = m.title;
-            output.appendChild(div);
-        })
-    });
-    xhr.open('GET', url);
-    xhr.send();
+        let xhr = new XMLHttpRequest();
+
+
+        xhr.addEventListener('load', () => {
+            let data = JSON.parse(xhr.responseText);
+            observer.next(data);
+            observer.complete();
+        });
+        xhr.open('GET', url);
+        xhr.send();
+    })
 }
 
-click.subscribe(
-        e => load('movies.json'),
-        logError,
-        logComplete);
+function renderMovies(movies) {
+    movies.forEach(m => {
+        let div = document.createElement('div');
+        div.innerText = m.title;
+        output.appendChild(div);
+    })
+}
+
+load('movies.json')
+        .subscribe(renderMovies); // load method is lazy, no request is sent until there is a subscriber
+
+click.flatMap(e => load('movies.json'))
+        .subscribe(
+                renderMovies,
+                logError,
+                logComplete);
+
+// click.subscribe(
+//         e => load('movies.json').subscribe(), // no subscribe in a subscribe
+//         logError,
+//         logComplete);
+
+// click.flatMap(e => load('movies.json'))
+//         .subscribe(o => console.log(o));
+
 
 
