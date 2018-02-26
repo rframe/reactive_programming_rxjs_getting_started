@@ -19,7 +19,7 @@ function load(url: string) {
             div.innerText = m.title;
             output.appendChild(div);
         })
-    })
+    });
     xhr.open('GET', url);
     xhr.send();
 }
