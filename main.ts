@@ -32,6 +32,21 @@ function load(url: string): Observable<any> {
             .retryWhen(retryStrategy({attempts: 3, delay: 1500}))
 }
 
+function loadWithFetch(url: string) {
+    // Adding Observable.defer makes this observable lazy again
+    return Observable.defer(() =>
+            Observable.fromPromise(
+                fetch('movies.json')
+                        .then(r => r.json())));
+
+    // Returning the promise striaght away makes this observable not lazy
+    // return Observable.fromPromise(
+    //         fetch('movies.json')
+    //                 .then(r => r.json())
+    // );
+}
+
+
 function retryStrategy({attempts = 4, delay = 1000}) {
     return function (errors) {
         return errors
@@ -49,10 +64,13 @@ function renderMovies(movies) {
     })
 }
 
-load('movies.json')
-        .subscribe(renderMovies); // load method is lazy, no request is sent until there is a subscriber
+// load('movies.json')
+loadWithFetch('movies.json')
+        .subscribe(renderMovies);
 
-click.flatMap(e => load('movies.json'))
+click
+// .flatMap(e => load('movies.json'))
+        .flatMap(e => loadWithFetch('movies.json'))
         .subscribe(
                 renderMovies,
                 logError,
