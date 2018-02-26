@@ -27,22 +27,32 @@ export function loadWithFetch(url: string) {
     // Adding Observable.defer makes this observable lazy again
     return Observable.defer(() =>
             Observable.fromPromise(
-                    fetch('movies.json')
-                            .then(r => r.json())));
-
-    // Returning the promise striaght away makes this observable not lazy
-    // return Observable.fromPromise(
-    //         fetch('movies.json')
-    //                 .then(r => r.json())
-    // );
+                    fetch(url)
+                            .then(r => {
+                                if (r.status === 200) {
+                                    return r.json();
+                                } else {
+                                    return Promise.reject(r);
+                                }
+                            }))
+                    // .retryWhen(retryStrategy())
+    )
+            .retryWhen(retryStrategy());
 }
 
 
-function retryStrategy({attempts = 4, delay = 1000}) {
+function retryStrategy({attempts = 4, delay = 1000} = {}) {
     return function (errors) {
         return errors
-                .scan((acc, value) => ++acc, 0)
-                .takeWhile(acc => acc < attempts)
+                .scan((acc, value) => {
+                    if (++acc < attempts) {
+                        return acc;
+                    }
+                    throw new Error(value);
+                    // console.log(acc, value);
+                    // return ++acc
+                }, 0)
+                // .takeWhile(acc => acc < attempts)
                 .delay(delay);
     }
 }
