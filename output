@@ -1,0 +1,8 @@
+
+> psrsjx5@1.0.0 start C:\Users\russell.frame\git\reactive_programming_rxjs_getting_started
+> webpack-dev-server --watch --inline
+
+ http://localhost:8080/
+webpack result is served from /
+content is served from C:\Users\russell.frame\git\reactive_programming_rxjs_getting_started
+webpack: Failed to compile.
