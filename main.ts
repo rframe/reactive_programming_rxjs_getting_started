@@ -18,13 +18,27 @@ function load(url: string): Observable<any> {
 
 
         xhr.addEventListener('load', () => {
-            let data = JSON.parse(xhr.responseText);
-            observer.next(data);
-            observer.complete();
+            if (xhr.status === 200) {
+                let data = JSON.parse(xhr.responseText);
+                observer.next(data);
+                observer.complete();
+            } else {
+                observer.error(xhr.statusText);
+            }
         });
         xhr.open('GET', url);
         xhr.send();
     })
+            .retryWhen(retryStrategy({attempts: 3, delay: 1500}))
+}
+
+function retryStrategy({attempts = 4, delay = 1000}) {
+    return function (errors) {
+        return errors
+                .scan((acc, value) => ++acc, 0)
+                .takeWhile(acc => acc < attempts)
+                .delay(delay);
+    }
 }
 
 function renderMovies(movies) {
@@ -43,14 +57,3 @@ click.flatMap(e => load('movies.json'))
                 renderMovies,
                 logError,
                 logComplete);
-
-// click.subscribe(
-//         e => load('movies.json').subscribe(), // no subscribe in a subscribe
-//         logError,
-//         logComplete);
-
-// click.flatMap(e => load('movies.json'))
-//         .subscribe(o => console.log(o));
-
-
-
