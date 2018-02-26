@@ -1,4 +1,8 @@
-import {Observable} from 'rxjs';
+// import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/filter';
+
 
 export const logValue = (value) => console.log(value);
 export const logError = (e) => console.log(`error ${e}`);
